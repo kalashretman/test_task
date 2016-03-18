@@ -1,0 +1,19 @@
+We are creating mobile app that allows user to resize uploaded photos. You will need to create backend server that will provide api for this app.
+The main app functionalities
+
+User can use mobile app to upload image and pass resize parameters. In response he will receive resized image
+User can see list of his earlier resized images with resize results and resizing parameters
+When new user starts using mobile app it request server for unique key which is used to subscribe user requests
+Api need to return proper errors in proper format for invalid user inputs
+All images should be returned as link to image and width and height values
+
+Requirements
+You need to implement backend and create api format with api documentation
+You can use any language and framework of your choice as well as third party libraries.
+Results should be presented as git repository
+
+We will rate
+technology stack choice
+code quality
+git workflow
+test coverage
