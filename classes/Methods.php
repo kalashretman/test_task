@@ -10,18 +10,18 @@ class Methods
 {
     function getListImages($userID)
     {
-        $sql = Db::pdo()->prepare("SELECT resize_img_url, height, width FROM images WHERE client_id = :client_id");
-        $sql->execute(array(':client_id'=>$userID));
+        $sql = Db::pdo()->prepare("SELECT resize_img_url, height, width FROM images WHERE userID = :userID");
+        $sql->execute(array(':userID'=>$userID));
 
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function recordImg($img_data)
     {
-        $sql = Db::pdo()->prepare("INSERT INTO (id, client_id, original_img_url, resize_img_url, height, width)
-                                   VALUES ('', :client_id, :original_img_url, :resize_img_url, :height, :width)");
+        $sql = Db::pdo()->prepare("INSERT INTO (id, userID, original_img_url, resize_img_url, height, width)
+                                   VALUES ('', :userID, :original_img_url, :resize_img_url, :height, :width)");
         $sql->execute(array(
-            ':client_id' => $img_data['client_id'],
+            ':userID' => $img_data['userID'],
             ':original_img_url' => $img_data['original_img_url'],
             ':resize_img_url' => $img_data['resize_img_url'],
             ':height' => $img_data['height'],
@@ -31,30 +31,30 @@ class Methods
 
     function resizeImages(array $data){
 
-        $uploaddir = 'tmp/';
-        $uploadfile = $uploaddir.basename($_FILES[$name]['name']);
+        $uploaddir = 'images/tmp/';
+        $uploadfile = $uploaddir.basename($_FILES['uploadname']['name']);
 
-        if (!copy($_FILES[$name]['tmp_name'], $uploadfile)){
+        if (!copy($_FILES['uploadname']['tmp_name'], $uploadfile)){
             echo 'Error with images!';
             exit();
         }
 
-        list($width, $height, $type, $attr) = getimagesize('tmp/'.basename($_FILES[$name]['name']));
-        $nameFile = rand(0, 100000).".".substr($_FILES[$name]['type'], 6);
+        list($width, $height, $type, $attr) = getimagesize('images/tmp/'.basename($_FILES['uploadname']['name']));
+        $nameFile = rand(0, 10000000).".".substr($_FILES['uploadname']['type'], 8);
 
         $savePath = 'images/resize/'.$nameFile;
-        $filePath = 'tmp/'.basename($_FILES[$name]['name']);
+        $filePath = 'images/tmp/'.basename($_FILES['uploadname']['name']);
 
         $image = AcImage::createImage($filePath);
         $image
             ->thumbnail($width, $height)
             ->save($savePath);
 
-        return	$nameFile;
+        return $nameFile;
     }
 
 
-    function saveResizeImages(){
+    function saveResizeImages($data){
 
         $imgurl= NULL;
         $imgresizeurl = NULL;
@@ -63,8 +63,14 @@ class Methods
 
             $nameFile = $this->resizeImages('uploadfile');
             $imgurl = "http://".$_SERVER['SERVER_NAME']."/images/".$nameFile;
-            $imgsmallurl = "http://".$_SERVER['SERVER_NAME']."/images/resize/".$nameFile;
+            $imgresizeurl = "http://".$_SERVER['SERVER_NAME']."/images/resize/".$nameFile;
         }
+
+        $img_data = array(':userID' => $data['userID'],
+            ':original_img_url' => $imgurl,
+            ':resize_img_url' => $imgresizeurl,
+            ':height' => $data['height'],
+            ':width' => $data['width']);
 
         $this->recordImg($img_data);
 
