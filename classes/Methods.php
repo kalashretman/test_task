@@ -29,7 +29,7 @@ class Methods
         ));
     }
 
-    function resizeImages($name, $width, $height){
+    function resizeImages(array $data){
 
         $uploaddir = 'tmp/';
         $uploadfile = $uploaddir.basename($_FILES[$name]['name']);

@@ -2,18 +2,33 @@
 
 include_once "classes/Methods.php";
 
+$status = 'OK';
+$response = null;
+$error = 0;
+
 if ($_POST['data']){
 
     $methods = new Methods();
     $data = $_POST['data'];
 
     //сперва проверяем наличие id клиента
-    if (!checkIdClient($data['id_client'])){
-        $list = array('error' => 'User is not identifity');
+    if (!checkIdClient($data['userID'])){
+        $status = 'ERROR';
+        $error = 'User is not identity';
     } else {
-        $list = $methods->getListImages($data['id_client']);
-        if (!$list) $list = array('massage'=>'User have not images');
+        $response = $methods->getListImages($data['userID']);
+        if (!$response) $response = 'User have not images';
     }
-
-    echo json_encode($list);
+}else{
+    $status = 'ERROR';
+    $error = "Request's error";
 }
+
+// array for answer
+$result = array(
+    'status' => $status,
+    'response' => $response,
+    'error' => $error,
+);
+
+echo json_encode($result); // answer by json's format
