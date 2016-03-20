@@ -31,8 +31,9 @@ class Methods
         ));
     }
 
-    static function resizeImages(array $data){
-
+    static function resizeImages(array $data)
+    {
+        var_dump($data);
         $uploaddir = 'images/tmp/';
         $uploadfile = $uploaddir.basename($_FILES['uploadname']['name']);
 
@@ -49,7 +50,7 @@ class Methods
 
         $image = AcImage::createImage($filePath);
         $image
-            ->thumbnail($data['width'], $data['height'])
+            ->thumbnail((int)$data['width'], (int)$data['height'])
             ->save($savePath);
 
         $result = array('url' => $savePath,
