@@ -14,7 +14,7 @@ if ($_FILES['uploadname'] && $_POST['userID']){
         $status = 'ERROR';
         $error = 'User is not identity';
 
-    } else $response = Methods::resizeImages($_POST);
+    } else $response = Methods::saveResizeImages($_POST);
 
 }else{
     $status = 'ERROR';

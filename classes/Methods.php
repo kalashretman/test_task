@@ -18,32 +18,31 @@ class Methods
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    function recordImg($img_data)
+    static function recordImg($img_data)
     {
-        $sql = Db::pdo()->prepare("INSERT INTO (id, userID, original_img_url, resize_img_url, height, width)
+        $sql = Db::pdo()->prepare("INSERT INTO images (id, userID, original_img_url, resize_img_url, height, width)
                                    VALUES ('', :userID, :original_img_url, :resize_img_url, :height, :width)");
         $sql->execute(array(
             ':userID' => $img_data['userID'],
             ':original_img_url' => $img_data['original_img_url'],
             ':resize_img_url' => $img_data['resize_img_url'],
-            ':height' => $img_data['height'],
-            ':width' => $img_data['width'],
+            ':height' => (int)$img_data['height'],
+            ':width' => (int)$img_data['width'],
         ));
     }
 
     static function resizeImages(array $data)
     {
-        var_dump($data);
         $uploaddir = 'images/tmp/';
         $uploadfile = $uploaddir.basename($_FILES['uploadname']['name']);
 
         if (!copy($_FILES['uploadname']['tmp_name'], $uploadfile)){
-            echo 'Error with images!';
+            var_dump('Error with images!') ;
             exit();
         }
 
     //  list($width, $height, $type, $attr) = getimagesize('images/tmp/'.basename($_FILES['uploadname']['name']));
-        $nameFile = rand(0, 10000000).".".substr($_FILES['uploadname']['type'], 8);
+        $nameFile = rand(0, 10000000).".".substr($_FILES['uploadname']['type'], 6);
 
         $savePath = 'images/resize/'.$nameFile;
         $filePath = 'images/tmp/'.basename($_FILES['uploadname']['name']);
@@ -53,11 +52,7 @@ class Methods
             ->thumbnail((int)$data['width'], (int)$data['height'])
             ->save($savePath);
 
-        $result = array('url' => $savePath,
-            'width' => $data['width'],
-            'height' => $data['height']);
-
-        return $result;
+        return $nameFile;
     }
 
 
@@ -66,21 +61,24 @@ class Methods
         $imgurl= NULL;
         $imgresizeurl = NULL;
 
-        if ($_FILES['uploadfile']['name']){
+        $nameFile = self::resizeImages($data);
 
-            $nameFile = $this->resizeImages('uploadfile');
+        if ($nameFile){
             $imgurl = "http://".$_SERVER['SERVER_NAME']."/images/".$nameFile;
             $imgresizeurl = "http://".$_SERVER['SERVER_NAME']."/images/resize/".$nameFile;
         }
 
-        $img_data = array(':userID' => $data['userID'],
-            ':original_img_url' => $imgurl,
-            ':resize_img_url' => $imgresizeurl,
-            ':height' => $data['height'],
-            ':width' => $data['width']);
+        $img_data = array('userID' => $data['userID'],
+            'original_img_url' => $imgurl,
+            'resize_img_url' => $imgresizeurl,
+            'height' => $data['height'],
+            'width' => $data['width']);
 
-        $this->recordImg($img_data);
+        self::recordImg($img_data);
 
+        return array('url' => $imgresizeurl,
+            'width' => $data['width'],
+            'height' => $data['height']);
     }
 
     public static function checkUser($userID)
