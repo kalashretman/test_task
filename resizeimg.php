@@ -1,25 +1,26 @@
 <?php
 
+header('Access-Control-Allow-Origin: *');
 include_once "classes/Methods.php";
 
 $status = 'OK';
 $response = null;
 $error = 0;
 
-if ($_POST['data']){
-    var_dump($_POST);
-    var_dump($_FILES);
+if ($_FILES['uploadname'] && $_POST['userID']){
+
     //сперва проверяем наличие id клиента
-    if (!checkIdClient($data['userID'])){
+    if (!Methods::checkUser($_POST['userID'])){
         $status = 'ERROR';
         $error = 'User is not identity';
 
-    } else $response = $methods->resizeImages($data);
+    } else $response = Methods::resizeImages($_POST);
 
 }else{
     $status = 'ERROR';
-    $error = "Request's error";
+    $error = "File not found!";
 }
+
 // array for answer
 $result = array(
     'status' => $status,

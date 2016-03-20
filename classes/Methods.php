@@ -1,5 +1,7 @@
 <?php
 
+include_once "Db.php";
+include_once "/../resize/AcImage.php";
 /**
  * Created by PhpStorm.
  * User: Эд
@@ -29,7 +31,7 @@ class Methods
         ));
     }
 
-    function resizeImages(array $data){
+    static function resizeImages(array $data){
 
         $uploaddir = 'images/tmp/';
         $uploadfile = $uploaddir.basename($_FILES['uploadname']['name']);
@@ -39,7 +41,7 @@ class Methods
             exit();
         }
 
-        list($width, $height, $type, $attr) = getimagesize('images/tmp/'.basename($_FILES['uploadname']['name']));
+    //  list($width, $height, $type, $attr) = getimagesize('images/tmp/'.basename($_FILES['uploadname']['name']));
         $nameFile = rand(0, 10000000).".".substr($_FILES['uploadname']['type'], 8);
 
         $savePath = 'images/resize/'.$nameFile;
@@ -47,10 +49,14 @@ class Methods
 
         $image = AcImage::createImage($filePath);
         $image
-            ->thumbnail($width, $height)
+            ->thumbnail($data['width'], $data['height'])
             ->save($savePath);
 
-        return $nameFile;
+        $result = array('url' => $savePath,
+            'width' => $data['width'],
+            'height' => $data['height']);
+
+        return $result;
     }
 
 
@@ -76,7 +82,7 @@ class Methods
 
     }
 
-    public function checkUser($userID)
+    public static function checkUser($userID)
     {
         $sql = Db::pdo()->prepare("SELECT COUNT(*) as count FROM users WHERE userID = :userID");
         $sql->execute(array(':userID'=>$userID));

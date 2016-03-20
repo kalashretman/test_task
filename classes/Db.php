@@ -8,9 +8,9 @@
  */
 class Db
 {
-    private $conf_db_host = 'mysql:host=localhost;dbname=api';
-    private $conf_db_user = 'root';
-    private $conf_db_pass = '';
+    private static $conf_db_host = 'mysql:host=localhost;dbname=api';
+    private static $conf_db_user = 'root';
+    private static $conf_db_pass = '';
 
     static protected $_pdo;
 
